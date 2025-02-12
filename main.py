@@ -10,6 +10,7 @@ from langgraph.graph import START # For specifying the start node in a graph obj
 
 # Local Imports
 from nodes.agents import *
+from shared.utils import draw_graph
 
 print("Running Main.py")
 
@@ -24,11 +25,13 @@ graph_builder.add_node(human_input)
 graph_builder.add_edge("human_input", "ai_message")
 
 
-graph_builder.add_node(human_input_escape)
+graph_builder.add_node(human_input_gate)
 graph_builder.add_conditional_edges("human_input", "human_input_escape", "system_message", lambda state: state["messages"][0].content == "exit")
 
 
 graph = graph_builder.compile()
+
+draw_graph(graph, "main-graph.png")
 
 # Run Graph
 message_1 = {"role": "system", "content": "Make sure that all responses are only in spanish."}

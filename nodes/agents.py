@@ -18,6 +18,7 @@ llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7, max_tokens=100, api_key
 class State(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
     extra_field: int
+    user_feedback: str
 
 
 def ai_message_hi(state: State):
@@ -41,6 +42,7 @@ def human_input(state: State):
 
     return {"messages": [new_message]}
 
+human_input_gate
 
 # TODO figure out extra field what can use stuff like that for.
 
