@@ -1,7 +1,8 @@
 import os
 import os.path
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
+import json
 
 import pytz
 from dotenv import load_dotenv
@@ -74,8 +75,114 @@ class CreateCalendarEventInputModel(BaseModel):
             raise ValueError("end_time must be after start_time")
         return v
 
+
 @tool
 def create_calendar_event_tool(event_data: Dict[str, Any]) -> str:
+    """
+    Creates a Google Calendar event from the provided event_data dictionary.
+
+    Args:
+        event_data (dict): Dictionary with the following keys:
+            - topic: str
+            - start_time: datetime (or ISO-formatted string)
+            - end_time: datetime (or ISO-formatted string)
+
+    Returns:
+        str: A message indicating the event's creation status or an error message.
+    """
+    try:
+        data = CreateCalendarEventInputModel(**event_data)
+    except ValidationError as e:
+        return f"Input validation error: {e}"
+
+    service = get_calendar_service()
+    event_body = {
+        'summary': data.topic,
+        'start': {'dateTime': data.start_time.isoformat(), 'timeZone': 'UTC'},
+        'end': {'dateTime': data.end_time.isoformat(), 'timeZone': 'UTC'},
+    }
+
+    try:
+        created_event = service.events().insert(calendarId='primary', body=event_body).execute()
+        return f"Event created: {created_event.get('htmlLink')}"
+    except Exception as e:
+        return f"Error creating event: {e}"
+
+
+class CreateCalendarEventModel(BaseModel):
+    """
+    Validates the JSON string for event creation.
+    """
+    topic: str
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    location: Optional[str] = None
+    description: Optional[str] = None
+
+
+@tool
+def create_calendar_event(event_data_json: str) -> str:
+    """
+    Expects a JSON string with at least "topic" and "start_time".
+    Example:
+        {
+          "topic": "Team Meeting",
+          "start_time": "2025-02-15T10:00:00Z",
+          "end_time": "2025-02-15T11:00:00Z",
+          "location": "Conference Room A",
+          "description": "Weekly sync-up"
+        }
+
+    Returns:
+        str: A message indicating the event's creation status or an error message.
+    """
+    # 1) Parse JSON
+    try:
+        event_data = json.loads(event_data_json)
+    except json.JSONDecodeError:
+        return "Invalid JSON input. Please provide a valid JSON string."
+
+    # 2) Validate with Pydantic
+    try:
+        data = CreateCalendarEventInputModel(**event_data)
+    except ValidationError as e:
+        return f"Input validation error: {e}"
+
+    service = get_calendar_service()
+
+    # If end_time not given, reuse start_time or pick a default
+    end_time = data.end_time or (data.start_time + timedelta(hours=1))
+
+    event_body = {
+        'summary': data.topic,
+        'start': {
+            'dateTime': data.start_time.isoformat(),
+            'timeZone': 'UTC'
+        },
+        'end': {
+            'dateTime': end_time.isoformat(),
+            'timeZone': 'UTC'
+        },
+    }
+    # Safely set the 'location' if it exists and is truthy
+    if getattr(data, "location", None):
+        event_body["location"] = data.location
+
+    # Safely set the 'description' if it exists and is truthy
+    if getattr(data, "description", None):
+        event_body["description"] = data.description
+
+
+    # 3) Attempt to create the event
+    try:
+        created_event = service.events().insert(calendarId='primary', body=event_body).execute()
+        return f"Event created: {created_event.get('htmlLink')}"
+    except Exception as e:
+        return f"Error creating event: {e}"
+
+# WHAT THE FUCK IS THIS FUNCTION LMFAO
+@tool
+def get_current_datetime(event_data: Dict[str, Any]) -> str:
     """
     Creates a Google Calendar event from the provided event_data dictionary.
 
