@@ -181,37 +181,19 @@ def create_calendar_event(event_data_json: str) -> str:
         return f"Error creating event: {e}"
 
 # WHAT THE FUCK IS THIS FUNCTION LMFAO
+
+# Honstly fuck you im hard coding time zone 
 @tool
-def get_current_datetime(event_data: Dict[str, Any]) -> str:
+def get_current_datetime():
     """
-    Creates a Google Calendar event from the provided event_data dictionary.
-
-    Args:
-        event_data (dict): Dictionary with the following keys:
-            - topic: str
-            - start_time: datetime (or ISO-formatted string)
-            - end_time: datetime (or ISO-formatted string)
-
-    Returns:
-        str: A message indicating the event's creation status or an error message.
+    Return the current date and time in ISO 8601 format using Mountain Time (America/Denver).
     """
-    try:
-        data = CreateCalendarEventInputModel(**event_data)
-    except ValidationError as e:
-        return f"Input validation error: {e}"
+    tz = pytz.timezone("America/Denver")
+    now = datetime.datetime.now(tz).isoformat()
 
-    service = get_calendar_service()
-    event_body = {
-        'summary': data.topic,
-        'start': {'dateTime': data.start_time.isoformat(), 'timeZone': 'UTC'},
-        'end': {'dateTime': data.end_time.isoformat(), 'timeZone': 'UTC'},
-    }
+    print("asdfasdf")
 
-    try:
-        created_event = service.events().insert(calendarId='primary', body=event_body).execute()
-        return f"Event created: {created_event.get('htmlLink')}"
-    except Exception as e:
-        return f"Error creating event: {e}"
+    return now
 
 # ------------------------------------------------------------------------------
 # Current Time Tool

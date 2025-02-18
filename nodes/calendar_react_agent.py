@@ -79,6 +79,9 @@ def get_current_datetime():
     """
     tz = pytz.timezone("America/Denver")
     now = datetime.datetime.now(tz).isoformat()
+
+    print("asdfasdf")
+
     return now
 
 
@@ -121,7 +124,7 @@ def call_model(state: AgentState, config: RunnableConfig):
     system_prompt = SystemMessage(
         """
         You are a helpful calendar assistant whose job is to help users create and manage calendar events. When interacting with the user, follow these guidelines:
-
+        USE MOUNTAINT TIME YOU JEW
         1. **Structured Event Details:**  
         Collect event details in a JSON object with the following keys:
         - "topic" (Mandatory): A brief topic for the event.
@@ -131,6 +134,7 @@ def call_model(state: AgentState, config: RunnableConfig):
         - "description" (Optional): Any additional information.
 
         2. **Handling Relative Time Expressions:**  
+        You a should always use MST. The time tool will return MST, and the event and user are in MST.
         If the user mentions a relative time expression (e.g., "3 days from now", "tomorrow at 10am"), first call the `get_current_datetime` tool to get the current time. Then, use that reference to calculate the absolute time and update the event details accordingly by calling `update_event_details_tool`.
 
         3. **State Updates:**  
