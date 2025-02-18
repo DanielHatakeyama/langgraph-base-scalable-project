@@ -1,24 +1,3 @@
-#!/usr/bin/env python
-"""
-Human-in-the-Loop Chatbot Example using LangGraph with OpenAI and Pydantic
-
-This script demonstrates a LangGraph chatbot that can request human assistance
-when needed. It uses an interrupt to pause execution and then resumes when a human 
-provides input. The graph's state is defined using a Pydantic BaseModel for runtime 
-validation.
-
-Before running, create a `.env` file in the same directory with your API keys:
-    OPENAI_API_KEY=<your_openai_api_key>
-    TAVILY_API_KEY=<your_tavily_api_key>
-
-Required packages:
-    - python-dotenv
-    - langgraph
-    - langchain_openai
-    - tavily-python
-    - langchain_community
-    - pydantic>=2
-"""
 import uuid
 import os
 from dotenv import load_dotenv
@@ -45,7 +24,6 @@ LANGSMITH_PROJECT = os.getenv('LANGSMITH_PROJECT')
 # Imports from LangGraph and related libraries
 from typing import Annotated, Any, List
 from pydantic import BaseModel, Field
-
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
@@ -55,8 +33,6 @@ from langgraph.types import Command, interrupt
 from langchain_openai import ChatOpenAI
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.tools import tool
-
-
 
 # Define the overall state of the graph using a Pydantic model.
 # Here, we use Annotated to apply the add_messages reducer.
