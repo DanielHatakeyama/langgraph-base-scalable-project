@@ -2,6 +2,18 @@ import uuid
 import os
 from dotenv import load_dotenv
 
+# turn to graph . stream instead of invoke for last change
+# TODO: So this is functioning, make sure to mark / save a verision, then begin porting it over to a new solution
+# There are several problems with this solution:
+# 1. it does not seem to be error resistant
+# 2. It does not seem to function as expected with researching multiple times, iterating chain of thought, then only routing to human if needed.
+# 3. THere should be a better way to isolate and route to the human. 
+# 4. The graph resuming is also not strong enough, i think it should involve the state
+# 5. Take advantage of the state, it is time to work with the type of it, pydantic or not, make the decision
+# Revisiting agents as workflows and breaking down the isolated proceses.
+# 6. Eliminate errors and make a robust solution.
+# FIRST NOTE Let group know with the usual announcment  w
+# NOTE TOOL encapsulation / other class encapsulation of the main proceses like agents and workflows etc
 # Load environment variables from .env file
 load_dotenv()
 
@@ -60,8 +72,8 @@ llm_with_tools = llm.bind_tools(tools + [AskHuman])
 def chatbot(state: OverallState):
     message = llm_with_tools.invoke(state.messages)
     # Disable parallel tool calling to avoid duplicate tool calls on resume.
-    # if hasattr(message, "tool_calls"):
-    #     assert len(message.tool_calls) <= 1
+    if hasattr(message, "tool_calls"):
+        assert len(message.tool_calls) <= 1
     return {"messages": [message]}
 
 # Ask human node
