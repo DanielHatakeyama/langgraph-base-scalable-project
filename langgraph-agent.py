@@ -15,14 +15,10 @@ from dotenv import load_dotenv
 # FIRST NOTE Let group know with the usual announcment  w
 # NOTE TOOL encapsulation / other class encapsulation of the main proceses like agents and workflows etc
 
-
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
-
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
-
-# Only need to use these if you are tracing the output on langsmit (its worth setting up)
 LANGSMITH_TRACING = os.getenv('LANGSMITH_TRACING')
 LANGSMITH_ENDPOINT = os.getenv('LANGSMITH_ENDPOINT')
 LANGSMITH_API_KEY = os.getenv('LANGSMITH_API_KEY')
@@ -54,7 +50,7 @@ search_tool = TavilySearchResults(
     max_results=5,
     search_depth="advanced",
     include_answer=True,
-    include_raw_content=True,
+    include_raw_content=True
     include_images=False
 )
 
@@ -69,6 +65,7 @@ llm = ChatOpenAI(
 )
 llm_with_tools = llm.bind_tools(tools + [AskHuman])
 
+https://python.langchain.com/api_reference/core/index.html
 
 # Define the agent node function.
 def chatbot(state: OverallState):

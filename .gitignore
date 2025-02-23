@@ -38,7 +38,7 @@ build/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
-
+jjjllll
 # Logs and databases
 *.log
 *.sqlite3
